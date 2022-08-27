@@ -74,7 +74,7 @@ int main()
 	}
 	std::cin.get();
 #endif
-#if 1
+#if 0
 	//重点：
 	//当开启新线程的时候，调用future.wait和future.get都可以起到阻塞主线程的作用，等待子线程执行完，之所以有wait，是为了让主线程灵活的确定需
 	//要在程序的哪个位置进行阻塞等待。
@@ -94,6 +94,19 @@ int main()
 	else
 		std::cout << "is not prime" << std::endl;
 #endif
+#if 1
+	//调用wait_for的时候也会立刻执行函数，他会根据设定的等待时间，每过这么长时间监测一下函数有没有执行完
+	//future.wait_for();
+	std::future<int> fut = std::async(get_value);
+	std::chrono::milliseconds span(100);
+	while (fut.wait_for(span) == std::future_status::timeout)
+	{
+		std::cout << ".";
+	}
+	std::cout << std::endl;
+	int x = fut.get();
+	std::cout << "return value is:" << x << std::endl;
+#endif 
 	std::cin.get();
     return 0;
 }
