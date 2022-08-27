@@ -125,7 +125,17 @@ int main()
 	{
 		std::cout << "time out。。。" << std::endl;
 	}
-	x = fut.get();
+	if (fut.valid())
+	{
+		x = fut.get();
+	}
+
+	if (fut.valid() == false)
+	{
+		std::cout << "当调用一次get之后，future对象就变成非法" << std::endl;
+	}
+	
+
 	std::cout << "x:" << x << std::endl;
 
 #endif
