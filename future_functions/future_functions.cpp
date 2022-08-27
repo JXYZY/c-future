@@ -16,7 +16,7 @@ int get_int()
 int get_value()
 {
 	std::cout << "get_value thread id:" << std::this_thread::get_id() << std::endl;
-	std::this_thread::sleep_for(std::chrono::seconds(10));
+	std::this_thread::sleep_for(std::chrono::seconds(2));
 	return 10;
 }
 
@@ -94,22 +94,37 @@ int main()
 	else
 		std::cout << "is not prime" << std::endl;
 #endif
-#if 0
+#if 1
 	//调用wait_for的时候也会立刻执行函数，他会根据设定的等待时间，每过这么长时间监测一下函数有没有执行完
 	//future.wait_for();
 	std::future<int> fut = std::async(get_value);
 	//wait_for和wait_until是不能让deferred推迟任务函数执行的，所以不能配合使用
 	//std::future<int> fut = std::async(std::launch::deferred,get_value);
-	std::chrono::milliseconds span(100);
-	while (fut.wait_for(span) == std::future_status::timeout)
-	{
-		std::cout << ".";
-	}
+	std::chrono::milliseconds span(5000);
+	std::future_status status;
+	do{
+		status = fut.wait_for(span);
+		if (status == std::future_status::deferred)
+		{
+			std::cout << "deferred!" << std::endl;
+		}
+		else if (status == std::future_status::timeout)
+		{
+			std::cout << "timeout" << std::endl;
+		}
+		else if(status == std::future_status::ready)
+		{
+			std::cout << "ready" << std::endl;
+		}
+
+		//std::cout << ".";
+	} while (status != std::future_status::ready);
+
 	std::cout << std::endl;
 	int x = fut.get();
 	std::cout << "return value is:" << x << std::endl;
 #endif
-#if 1
+#if 0
 	//wait_until
 	//wait_until会等到某个时间点，如果提前执行完，那么提前出等待，如果到某个时间点没执行完那么也会出等待，并且状态是timeout
 	//wait_until和wait_for不会自动调用deforred的时候的函数，当为deforred的时候，只有wait会走函数。
